@@ -1,0 +1,360 @@
+<#@ template language="C#" #>
+<#@ output extension=".cpp" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ assembly name="System.Collections" #>
+<#@ assembly name="System.Linq" #>
+<#@ assembly name="System.Text.RegularExpressions" #>
+
+#include <array>
+#include <cstdint>
+#include <iomanip>
+#include <ios>
+#include <iostream>
+#include <string>
+#include <string_view>
+
+<#
+	var headers = GetHeaders();
+	var oleGuidMacros = headers
+		.Select(file => new KeyValuePair<string, IEnumerable<string>>(file, GetOleGuidMacros(file)))
+		.Where(kvp => kvp.Value.Any())
+		.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+	foreach (var file in headers)
+	{
+		if (!oleGuidMacros.ContainsKey(file))
+		{
+#>
+#include "<#= file #>"
+<#
+		}
+	}
+
+	if (oleGuidMacros.Any())
+	{
+		foreach (var file in oleGuidMacros)
+		{
+#>
+
+// <#= file.Key #>
+<#
+			foreach (var macro in file.Value)
+			{
+#>
+#define USES_<#= macro #>
+<#
+			}
+		}
+#>
+
+#define INITGUID
+#include <guiddef.h>
+
+<#
+		foreach (var file in oleGuidMacros)
+		{
+#>
+#include "<#= file.Key #>"
+<#
+		}
+#>
+
+#undef INITGUID
+<#
+	}
+#>
+
+void outputCode(std::string_view name, std::uint32_t code)
+{
+	std::cout << R"(
+
+#ifdef )" << name << R"(
+#undef )" << name << R"(
+#define )" << name << R"( ((HRESULT)0x)"
+		<< std::hex << std::setfill('0') << std::uppercase << std::setw(8)
+		<< code << R"()
+#endif // )" << name;
+}
+
+void outputGuid(std::string_view name, const GUID& guid)
+{
+	std::cout << R"(
+
+#undef )" << name << R"(
+DEFINE_GUID()" << name << R"(, 0x)"
+		<< std::hex << std::setfill('0') << std::uppercase << std::setw(8)
+		<< static_cast<unsigned int>(guid.Data1) << R"(, 0x)"
+		<< std::hex << std::setfill('0') << std::uppercase << std::setw(4)
+		<< static_cast<unsigned int>(guid.Data2) << R"(, 0x)"
+		<< std::hex << std::setfill('0') << std::uppercase << std::setw(4)
+		<< static_cast<unsigned int>(guid.Data3);
+
+	for (const auto b : guid.Data4)
+	{
+		std::cout << R"(, 0x)"
+			<< std::hex << std::setfill('0') << std::uppercase << std::setw(2)
+			<< static_cast<unsigned int>(b);
+	}
+
+	std::cout << R"();)";
+}
+
+void outputConst(std::string_view name, auto value)
+{
+	constexpr auto width = sizeof(value) * 2;
+
+	std::cout << R"(
+
+#ifdef )" << name << R"(
+#undef )" << name << R"(
+#define )" << name << R"( (0x)"
+		<< std::hex << std::setfill('0') << std::uppercase << std::setw(width)
+		<< value << R"()
+#endif // )" << name;
+}
+
+int main()
+{
+	using namespace std::literals;
+
+	std::cout << R"(// Include all of the original MAPI headers. This file should be a drop-in replacement.
+
+<#
+	foreach (var file in headers)
+	{
+#>
+#include "<#= file #>"
+<#
+	}
+#>
+
+// Redefine all of the macros we found in a simplified form that matches the regular expressions in
+// https://github.com/microsoft/win32metadata. To keep C++ code in sync with the preprocessor flags
+// used to generate this file, you should include this header instead of the original MAPI headers.)";
+
+	constexpr std::array mapiCodeMacros {
+<#
+	var mapiRenamedCodeMacros = headers
+		.Select(file => GetRenamedMapiCodeMacros(file))
+		.Aggregate((first, second) => first.Concat(second))
+		.Distinct();
+
+	foreach (var macro in mapiRenamedCodeMacros)
+	{
+#>
+		std::make_pair("<#= macro #>"sv, static_cast<std::uint32_t>(<#= macro #>)),
+<#
+	}
+
+	var mapiCodeMacros = headers
+		.Select(file => GetMapiCodeMacros(file))
+		.Aggregate((first, second) => first.Concat(second))
+		.Distinct();
+
+	foreach (var macro in mapiCodeMacros)
+	{
+#>
+		std::make_pair("<#= macro #>"sv, static_cast<std::uint32_t>(<#= macro #>)),
+<#
+	}
+#>
+	};
+
+	for (const auto& entry : mapiCodeMacros)
+	{
+		outputCode(entry.first, entry.second);
+	}
+
+	const std::array oleGuidMacros {
+<#
+	foreach (var file in oleGuidMacros)
+	{
+		foreach (var macro in file.Value)
+		{
+#>
+		std::make_pair("<#= macro #>"sv, <#= macro #>),
+<#
+		}
+	}
+#>
+	};
+
+	for (const auto& entry : oleGuidMacros)
+	{
+		outputGuid(entry.first, entry.second);
+	}
+
+	constexpr std::array propTypeMacros {
+<#
+	var propTypeMacros = headers
+		.Select(file => GetPropTypeMacros(file))
+		.Aggregate((first, second) => first.Concat(second))
+		.Distinct();
+
+	foreach (var macro in propTypeMacros)
+	{
+#>
+		std::make_pair("<#= macro #>"sv, static_cast<std::uint16_t>(<#= macro #>)),
+<#
+	}
+#>
+	};
+
+	for (const auto& entry : propTypeMacros)
+	{
+		outputConst(entry.first, entry.second);
+	}
+
+	constexpr std::array propTagMacros {
+<#
+	var propTagMacros = headers
+		.Select(file => GetPropTagMacros(file))
+		.Aggregate((first, second) => first.Concat(second))
+		.Distinct();
+
+	foreach (var macro in propTagMacros)
+	{
+#>
+		std::make_pair("<#= macro #>"sv, static_cast<std::uint32_t>(<#= macro #>)),
+<#
+	}
+#>
+	};
+
+	for (const auto& entry : propTagMacros)
+	{
+		outputConst(entry.first, entry.second);
+	}
+
+	constexpr std::array otherLongMacros {
+<#
+	var propTypeMacrosSet = propTypeMacros.ToHashSet();
+	var otherLongMacros = headers
+		.Select(file => GetOtherLongMacros(file, propTypeMacrosSet))
+		.Aggregate((first, second) => first.Concat(second))
+		.Distinct();
+
+	foreach (var macro in otherLongMacros)
+	{
+#>
+		std::make_pair("<#= macro #>"sv, static_cast<std::uint32_t>(<#= macro #>)),
+<#
+	}
+#>
+	};
+
+	for (const auto& entry : otherLongMacros)
+	{
+		outputConst(entry.first, entry.second);
+	}
+
+	std::cout << std::endl;
+
+	return 0;
+}
+
+<#+
+	private static string[] GetHeaders()
+	{
+		return Directory.EnumerateFiles("./", "*.h")
+			.Select(file => Path.GetFileName(file))
+			.ToArray();
+	}
+
+	private static IEnumerable<string> GetPropTagMacros(string file)
+	{
+		var missing = new HashSet<string> {
+			@"PR_USER_SID",
+			@"PR_DOTSTUFF_STATE",
+			@"PR_CONVERSION_STATE",
+		};
+		var pattern = new Regex(@"^\s*#define\s+([^(\s]+)\s+PROP_TAG\(.+,.+\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value)
+			.Where(macro => !missing.Contains(macro));
+	}
+
+	private static IEnumerable<string> GetMapiCodeMacros(string file)
+	{
+		var pattern = new Regex(@"^\s*#define\s+([^(\s]+)\s+MAKE_MAPI_[ES]\(.+\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value);
+	}
+
+	private static IEnumerable<string> GetRenamedMapiCodeMacros(string file)
+	{
+		var pattern = new Regex(@"^\s*#define\s+(MAPI_[EW]_[^(\s]+)\s+([ES]_[^()]+)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value);
+	}
+
+	private static IEnumerable<string> GetOleGuidMacros(string file)
+	{
+		var pattern = new Regex(@"^\s*DEFINE_OLEGUID\(\s*([^\s,]+)(,\s*[^\s,]+){3}\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value)
+			.Concat(GetDefineGuidMacros(file))
+			.Distinct();
+	}
+
+	private static IEnumerable<string> GetDefineGuidMacros(string file)
+	{
+		var missing = new HashSet<string> {
+			@"CLSID_MimeEdit",
+			@"CMDSETID_MimeEdit",
+			@"CMDSETID_MimeEditHost",
+			@"CLSID_IHashTable",
+			@"CLSID_IFontCache",
+			@"CLSID_IMimeObjResolver",
+			@"IID_IHashTable",
+			@"IID_IMimeObjResolver",
+			@"IID_IFontCache",
+			@"IID_IFontCacheNotify",
+			@"IID_IMimeEditTag",
+			@"IID_IMimeEditTagCollection",
+		};
+		var pattern = new Regex(@"^\s*DEFINE_GUID\(\s*([^\s,]+)(,\s*[^\s,]+){11}\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value)
+			.Where(macro => !missing.Contains(macro));
+	}
+
+	private static IEnumerable<string> GetPropTypeMacros(string file)
+	{
+		var pattern = new Regex(@"^\s*#define\s+(PT_[^(\s]+)\s+\(.+\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value);
+	}
+
+	private static IEnumerable<string> GetOtherLongMacros(string file, HashSet<string> propTypeMacros)
+	{
+		var pattern = new Regex(@"^\s*#define\s+([^(\s]+)\s+\(\s*\((:?U?LONG|BOOKMARK)\).+\)");
+		var path = Path.Combine("./", file);
+		return File.ReadAllLines(path)
+			.Select(line => pattern.Match(line))
+			.Where(match => match.Success)
+			.Select(match => match.Groups[1].Value)
+			.Where(macro => !propTypeMacros.Contains(macro));
+	}
+#>
