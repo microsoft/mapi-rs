@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <MAPIHeaders Include="mapi-scrubbed\include\*.h"/>
-    <MAPILibs Include="mapi-scrubbed\importlib\x64\mapi32.lib;mapi-scrubbed\importlib\x64\olmapi32.lib"/>
+    <MAPILibs Include="out\importlib\x64\mapi32.lib;out\importlib\x64\olmapi32.lib"/>
 
     <ImportLibs Include="@(MAPILibs)" />
 

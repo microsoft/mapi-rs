@@ -15,3 +15,4 @@
 # win32metadata SDK output
 /bin/
 /obj/
+/out/
