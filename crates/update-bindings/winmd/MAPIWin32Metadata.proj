@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MAPIHeaders Include="mapi-scrubbed\include\*.h"/>
-    <MAPILibs Include="out\importlib\x64\mapi32.lib;out\importlib\x64\olmapi32.lib"/>
+    <MAPIHeaders Include="$(MapiScrubbedDir)\include\*.h"/>
+    <MAPILibs Include="$(MapiScrubbedDir)\lib\x64\mapi32.lib;$(MapiScrubbedDir)\lib\x64\olmapi32.lib"/>
 
     <ImportLibs Include="@(MAPILibs)" />
 

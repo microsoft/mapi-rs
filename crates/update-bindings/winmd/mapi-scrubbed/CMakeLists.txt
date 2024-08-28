@@ -19,13 +19,14 @@ add_subdirectory(scrubber ${mapistublibrary_BINARY_DIR})
 
 file(GLOB MAPI_HEADERS LIST_DIRECTORIES false "${mapistublibrary_SOURCE_DIR}/include/*.h")
 add_custom_command(OUTPUT copied_headers
-	COMMAND cmake -E copy_if_different ${MAPI_HEADERS} ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h ${CMAKE_CURRENT_SOURCE_DIR}/include
+	COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/include
+	COMMAND cmake -E copy_if_different ${MAPI_HEADERS} ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h ${CMAKE_BINARY_DIR}/include
 	COMMAND cmake -E touch copied_headers
 	DEPENDS scrubconstants)
 add_custom_target(copyheaders ALL DEPENDS copied_headers)
 
 add_library(testbuild STATIC testbuild.cpp)
 add_dependencies(testbuild copyheaders)
-target_include_directories(testbuild PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(testbuild PUBLIC ${CMAKE_BINARY_DIR}/include)
 
 add_subdirectory(importlib)

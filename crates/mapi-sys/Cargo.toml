@@ -1,19 +1,15 @@
 [package]
 name = "outlook-mapi-sys"
 version = "0.5.7"
-edition = "2021"
-rust-version = "1.70"
 description = "Bindings generated with the windows crate for the Outlook MAPI interface"
-repository = "https://github.com/wravery/mapi-rs"
-license = "MIT"
-keywords = [ "win32", "outlook", "mapi" ]
-categories = [ "os::windows-apis" ]
 
-[features]
-default = [ "olmapi32" ]
-olmapi32 = [
-    "windows/Win32_System_ApplicationInstallationAndServicing",
-]
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
@@ -22,28 +18,17 @@ targets = [
     "aarch64-pc-windows-msvc",
 ]
 
-[dependencies]
-outlook-mapi-stub = "0.2"
-windows-core = "0.58"
-
-[dependencies.windows]
-version = "0.58"
-features = [
-    "implement",
-    "Win32_Globalization",
-    "Win32_Graphics_Gdi",
-    "Win32_Security_Cryptography",
-    "Win32_Storage_Imapi",
-    "Win32_System_AddressBook",
-    "Win32_System_Com_StructuredStorage",
-    "Win32_System_Com_Urlmon",
-    "Win32_System_LibraryLoader",
-    "Win32_System_Ole",
-    "Win32_System_Registry",
-    "Win32_System_Variant",
-    "Win32_System_WinRT",
-    "Win32_UI_WindowsAndMessaging",
+[features]
+default = [ "olmapi32" ]
+olmapi32 = [
+    "windows/Win32_System_ApplicationInstallationAndServicing",
 ]
 
+[dependencies]
+outlook-mapi-stub = "0.2"
+
+windows.workspace = true
+windows-core.workspace = true
+
 [build-dependencies]
-thiserror = "1.0.26"
+thiserror.workspace = true
