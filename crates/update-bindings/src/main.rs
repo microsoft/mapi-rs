@@ -62,7 +62,7 @@ mod mapi_winmd {
         let header_path = scrub_mapi_headers()?;
         install_clang_sharp()?;
         generate_winmd_from_scrubbed(header_path)?;
-        
+
         let mut winmd_path = get_manifest_dir();
         winmd_path.push("winmd");
         winmd_path.push("bin");
