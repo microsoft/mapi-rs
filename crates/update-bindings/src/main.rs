@@ -53,7 +53,6 @@ mod mapi_winmd {
         process::{Command, Output},
     };
 
-    use cmake;
     use regex::RegexBuilder;
 
     use super::mapi_path::*;
