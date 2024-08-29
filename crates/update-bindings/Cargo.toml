@@ -1,0 +1,18 @@
+[package]
+name = "update-bindings"
+version = "1.0.0"
+publish = false
+
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+cmake.workspace = true
+regex.workspace = true
+thiserror.workspace = true
+windows-bindgen.workspace = true
