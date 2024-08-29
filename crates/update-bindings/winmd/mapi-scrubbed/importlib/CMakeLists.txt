@@ -23,3 +23,12 @@ add_custom_target(buildimportlibs ALL DEPENDS
 	${CMAKE_BINARY_DIR}/lib/x86/mapi32.lib
 	${CMAKE_BINARY_DIR}/lib/x64/olmapi32.lib
 	${CMAKE_BINARY_DIR}/lib/x86/olmapi32.lib)
+
+install(FILES
+		${CMAKE_BINARY_DIR}/lib/x64/mapi32.lib
+		${CMAKE_BINARY_DIR}/lib/x64/olmapi32.lib
+	DESTINATION lib/x64)
+install(FILES
+		${CMAKE_BINARY_DIR}/lib/x86/mapi32.lib
+		${CMAKE_BINARY_DIR}/lib/x86/olmapi32.lib
+	DESTINATION lib/x86)

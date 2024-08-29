@@ -1,7 +1,7 @@
 extern crate windows_bindgen;
 
 fn main() -> Result<()> {
-    if mapi_bindgen::update_mapi_sys()? {
+    if mapi_bindgen::update_mapi_sys(mapi_winmd::generate_winmd()?)? {
         println!("Microsoft.rs changed");
     }
 
@@ -16,6 +16,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     Regex(#[from] regex::Error),
+    #[error("Failed to run dotnet CLI.\n{0}")]
+    DotNetCli(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -45,6 +47,97 @@ mod mapi_path {
     }
 }
 
+mod mapi_winmd {
+    use std::{
+        path::PathBuf,
+        process::{Command, Output},
+    };
+
+    use cmake;
+    use regex::RegexBuilder;
+
+    use super::mapi_path::*;
+
+    pub fn generate_winmd() -> super::Result<PathBuf> {
+        let header_path = scrub_mapi_headers()?;
+        install_clang_sharp()?;
+        generate_winmd_from_scrubbed(header_path)?;
+        
+        let mut winmd_path = get_manifest_dir();
+        winmd_path.push("winmd");
+        winmd_path.push("bin");
+        Ok(winmd_path)
+    }
+
+    const CMAKE_TRIPLET: &str = "x86_64-pc-windows-msvc";
+
+    fn scrub_mapi_headers() -> super::Result<PathBuf> {
+        let mut mapi_scrubbed = get_manifest_dir();
+        mapi_scrubbed.push("winmd");
+        mapi_scrubbed.push("mapi-scrubbed");
+
+        Ok(cmake::Config::new(mapi_scrubbed)
+            .profile("RelWithDebInfo")
+            .target(CMAKE_TRIPLET)
+            .host(CMAKE_TRIPLET)
+            .generator("Ninja")
+            .out_dir(get_out_dir())
+            .build())
+    }
+
+    fn invoke_dotnet(args: &[&str]) -> super::Result<Output> {
+        Command::new("dotnet")
+            .args(args)
+            .output()
+            .map_err(|_| super::Error::DotNetCli(String::from("dotnet.exe not found")))
+    }
+
+    const CLANG_SHARP_NAME: &str = r"ClangSharpPInvokeGenerator";
+    const CLANG_SHARP_VERSION: &str = r"17.0.1";
+
+    fn install_clang_sharp() -> super::Result<()> {
+        let output = invoke_dotnet(&["tool", "list", "-g"])?;
+        let output = String::from_utf8_lossy(&output.stdout);
+
+        let version_pattern = CLANG_SHARP_VERSION.replace('.', r"\.");
+        let version_pattern =
+            RegexBuilder::new(format!(r"{CLANG_SHARP_NAME}\s+{version_pattern}").as_str())
+                .case_insensitive(true)
+                .build()
+                .expect("invalid regex");
+
+        if !version_pattern.is_match(&output) {
+            invoke_dotnet(&[
+                "tool",
+                "update",
+                CLANG_SHARP_NAME,
+                "--version",
+                CLANG_SHARP_VERSION,
+                "-g",
+            ])?;
+            println!("Installed {CLANG_SHARP_NAME} v{CLANG_SHARP_VERSION}");
+        }
+
+        Ok(())
+    }
+
+    fn generate_winmd_from_scrubbed(header_path: PathBuf) -> super::Result<()> {
+        let mut winmd_path = get_manifest_dir();
+        winmd_path.push("winmd");
+        let winmd_path = winmd_path.display().to_string();
+        let header_path = header_path.display().to_string();
+        let mapi_scrubbed = format!(r"--property:MapiScrubbedDir={header_path}");
+
+        let args = &["build", winmd_path.as_str(), mapi_scrubbed.as_str()];
+        let output = invoke_dotnet(args)?;
+        let output = String::from_utf8_lossy(&output.stdout);
+        let args = args.join(" ");
+        println!("dotnet {args}:\n{output}");
+
+        Ok(())
+    }
+}
+
 mod mapi_bindgen {
     use std::{
         fs,
@@ -58,8 +151,8 @@ mod mapi_bindgen {
 
     use super::mapi_path::*;
 
-    pub fn update_mapi_sys() -> super::Result<bool> {
-        let source_path = generate_mapi_sys()?;
+    pub fn update_mapi_sys(winmd_path: PathBuf) -> super::Result<bool> {
+        let source_path = generate_mapi_sys(winmd_path)?;
         format_mapi_sys(&source_path)?;
         let source = read_mapi_sys(&source_path)?;
 
@@ -76,11 +169,9 @@ mod mapi_bindgen {
         }
     }
 
-    fn generate_mapi_sys() -> super::Result<PathBuf> {
+    fn generate_mapi_sys(mut winmd_path: PathBuf) -> super::Result<PathBuf> {
         const WINMD_FILE: &str = "Microsoft.Office.Outlook.MAPI.Win32.winmd";
 
-        let mut winmd_path = get_manifest_dir();
-        winmd_path.push("winmd");
         winmd_path.push(WINMD_FILE);
         let mut source_path = get_out_dir();
         source_path.push("Microsoft.rs");

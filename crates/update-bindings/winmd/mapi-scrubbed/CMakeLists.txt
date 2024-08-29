@@ -30,3 +30,8 @@ add_dependencies(testbuild copyheaders)
 target_include_directories(testbuild PUBLIC ${CMAKE_BINARY_DIR}/include)
 
 add_subdirectory(importlib)
+
+install(FILES
+    ${MAPI_HEADERS}
+    ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h
+  DESTINATION include)
