@@ -49,6 +49,7 @@ mod mapi_path {
 
 mod mapi_winmd {
     use std::{
+        fs,
         path::PathBuf,
         process::{Command, Output},
     };
@@ -60,12 +61,7 @@ mod mapi_winmd {
     pub fn generate_winmd() -> super::Result<PathBuf> {
         let header_path = scrub_mapi_headers()?;
         install_clang_sharp()?;
-        generate_winmd_from_scrubbed(header_path)?;
-
-        let mut winmd_path = get_manifest_dir();
-        winmd_path.push("winmd");
-        winmd_path.push("bin");
-        Ok(winmd_path)
+        generate_winmd_from_scrubbed(header_path)
     }
 
     const CMAKE_TRIPLET: &str = "x86_64-pc-windows-msvc";
@@ -119,10 +115,28 @@ mod mapi_winmd {
         Ok(())
     }
 
-    fn generate_winmd_from_scrubbed(header_path: PathBuf) -> super::Result<()> {
-        let mut winmd_path = get_manifest_dir();
-        winmd_path.push("winmd");
-        let winmd_path = winmd_path.display().to_string();
+    fn generate_winmd_from_scrubbed(header_path: PathBuf) -> super::Result<PathBuf> {
+        let mut winmd_src = get_manifest_dir();
+        winmd_src.push("winmd");
+        let mut winmd_dest = get_out_dir();
+        winmd_dest.push("winmd");
+        let _ = fs::create_dir(&winmd_dest);
+
+        let sources = fs::read_dir(winmd_src)?;
+        for source in sources {
+            let source = source?.path();
+            if !source.is_file() {
+                continue;
+            }
+            let Some(file_name) = source.file_name() else {
+                continue;
+            };
+
+            let dest = winmd_dest.join(file_name);
+            fs::copy(&source, &dest)?;
+        }
+
+        let winmd_path = winmd_dest.display().to_string();
         let header_path = header_path.display().to_string();
         let mapi_scrubbed = format!(r"--property:MapiScrubbedDir={header_path}");
 
@@ -132,7 +146,8 @@ mod mapi_winmd {
         let args = args.join(" ");
         println!("dotnet {args}:\n{output}");
 
-        Ok(())
+        winmd_dest.push("bin");
+        Ok(winmd_dest)
     }
 }
 
