@@ -72,7 +72,6 @@ mod mapi_winmd {
 
     fn scrub_mapi_headers() -> super::Result<PathBuf> {
         let mut mapi_scrubbed = get_manifest_dir();
-        mapi_scrubbed.push("winmd");
         mapi_scrubbed.push("mapi-scrubbed");
 
         Ok(cmake::Config::new(mapi_scrubbed)
