@@ -7,6 +7,7 @@ add_custom_command(OUTPUT ${mapistublibrary_SOURCE_DIR}/include/ScrubHeaders.cpp
 
 add_executable(scrubber ${mapistublibrary_SOURCE_DIR}/include/ScrubHeaders.cpp)
 target_include_directories(scrubber PRIVATE ${mapistublibrary_SOURCE_DIR}/include)
+target_compile_options(scrubber PRIVATE /EHsc)
 
 add_custom_command(OUTPUT ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h
 	COMMAND scrubber > ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h VERBATIM
