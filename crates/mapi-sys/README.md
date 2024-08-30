@@ -5,4 +5,7 @@ This crate implements unsafe Rust bindings for the [Outlook MAPI](https://learn.
 This crate has a friendlier wrapper in [outlook-mapi](https://crates.io/crates/outlook-mapi).
 
 ## Windows Metadata
-The Windows crate requires a Windows Metadata (`winmd`) file describing the API. The one used in this crate was generated with the [mapi-win32md](https://github.com/wravery/mapi-win32md) project.
+The Windows crate requires a Windows Metadata (`winmd`) file describing the API. The one used in this crate is automatically regenerated as part of running `update-bindings`:
+```cmd
+> cargo run update-bindings
+```
