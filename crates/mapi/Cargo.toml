@@ -1,6 +1,6 @@
 [package]
 name = "outlook-mapi"
-version = "0.14.5"
+version = "0.15.0"
 description = "Rust bindings for the Outlook MAPI interface"
 
 authors.workspace = true
@@ -23,7 +23,7 @@ default = [ "olmapi32" ]
 olmapi32 = [ "outlook-mapi-sys/olmapi32" ]
 
 [dependencies]
-outlook-mapi-sys = { version = "0.5.7", default-features = false }
+outlook-mapi-sys.workspace = true
 
 windows.workspace = true
 windows-core.workspace = true

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.8](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.5.7...outlook-mapi-sys-v0.5.8) - 2024-08-30
+
+### Other
+- squish winmd generation into update-bindings
+- initial port to microsoft/mapi-rs
+
 ## [0.5.7](https://github.com/wravery/mapi-rs/compare/outlook-mapi-sys-v0.5.6...outlook-mapi-sys-v0.5.7) - 2024-08-01
 
 ### Other

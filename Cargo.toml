@@ -16,6 +16,9 @@ keywords = [ "win32", "outlook", "mapi" ]
 categories = [ "os::windows-apis" ]
 
 [workspace.dependencies]
+outlook-mapi-stub = "0.2.2"
+outlook-mapi-sys = { version = "0.5.8", default-features = false }
+
 cmake = "0.1"
 proc-macro2 = "1.0"
 quote = "1.0"
