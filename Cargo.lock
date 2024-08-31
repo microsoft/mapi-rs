@@ -88,7 +88,7 @@ dependencies = [
 
 [[package]]
 name = "outlook-mapi-stub"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -97,7 +97,7 @@ dependencies = [
 
 [[package]]
 name = "outlook-mapi-sys"
-version = "0.5.8"
+version = "0.6.0"
 dependencies = [
  "outlook-mapi-stub",
  "thiserror",
