@@ -1,5 +1,10 @@
 [workspace]
-members = [ "crates/*" ]
+members = [
+    "crates/update-bindings",
+    "crates/mapi-stub",
+    "crates/mapi-sys",
+    "crates/mapi",
+]
 resolver = "2"
 
 [patch.crates-io]
