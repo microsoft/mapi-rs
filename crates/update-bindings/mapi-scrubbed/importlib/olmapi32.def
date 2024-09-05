@@ -1,3 +1,6 @@
+; Copyright (c) Microsoft Corporation.
+; Licensed under the MIT license.
+
 LIBRARY OLMAPI32
 EXPORTS
 	DllCanUnloadNow PRIVATE

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! All of the safe wrappers added by this crate, as well as any macros, are exported from the root
 //! module of this crate.
 //!

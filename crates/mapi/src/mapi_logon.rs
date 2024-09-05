@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! Define [`Logon`] and [`LogonFlags`].
 
 use crate::{sys, Initialize};

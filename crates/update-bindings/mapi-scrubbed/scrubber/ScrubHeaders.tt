@@ -7,6 +7,8 @@
 <#@ assembly name="System.Collections" #>
 <#@ assembly name="System.Linq" #>
 <#@ assembly name="System.Text.RegularExpressions" #>
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 
 #include <array>
 #include <cstdint>

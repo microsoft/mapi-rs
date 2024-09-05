@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib/x64/mapi32.lib
 	COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/lib/x64
 	COMMAND cmake -E chdir ${CMAKE_BINARY_DIR}/lib/x64 lib /nologo /machine:x64 /out:mapi32.lib /def:${CMAKE_CURRENT_SOURCE_DIR}/mapi32.def

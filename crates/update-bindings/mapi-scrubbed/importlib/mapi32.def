@@ -1,3 +1,6 @@
+; Copyright (c) Microsoft Corporation.
+; Licensed under the MIT license.
+
 LIBRARY MAPI32
 EXPORTS
 	DllCanUnloadNow PRIVATE

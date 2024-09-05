@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 extern crate windows_bindgen;
 
 fn main() -> Result<()> {
@@ -207,6 +210,13 @@ mod mapi_bindgen {
         fs::File::open(source_path.clone())?.read_to_string(&mut outlook_mapi_sys)?;
 
         let mut source_file = fs::File::create(source_path.clone())?;
+
+        writeln!(
+            source_file,
+            r#"// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+"#
+        )?;
 
         source_file.write_all(patch_mapi_sys(outlook_mapi_sys)?.as_bytes())?;
         Ok(source_path)

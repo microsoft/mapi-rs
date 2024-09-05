@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! Define [`MAPIUninit`], [`MAPIBuffer`], and [`MAPIOutParam`].
 //!
 //! Smart pointer types for memory allocated with [`sys::MAPIAllocateBuffer`], which must be freed

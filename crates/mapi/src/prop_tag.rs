@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! Define [`PropTag`] and [`PropType`].
 
 use crate::sys;

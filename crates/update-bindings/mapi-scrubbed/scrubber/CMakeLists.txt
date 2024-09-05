@@ -1,6 +1,10 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 find_program(TTEXE TextTransformCore.exe)
 
 add_custom_command(OUTPUT ${mapistublibrary_SOURCE_DIR}/include/ScrubHeaders.cpp
+	COMMAND cmake -E rm -f -- ${mapistublibrary_SOURCE_DIR}/include/MAPIConstants.h
 	COMMAND cmake -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/ScrubHeaders.tt ${mapistublibrary_SOURCE_DIR}/include
 	COMMAND cmake -E chdir ${mapistublibrary_SOURCE_DIR}/include ${TTEXE} ScrubHeaders.tt
 	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ScrubHeaders.tt ${TTEXE})

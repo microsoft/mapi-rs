@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! Public macros and `const` functions to support SizedXXX types originally from `MAPIDefs.h`.
 
 #![allow(non_snake_case)]

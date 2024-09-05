@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 use core::{ptr, slice};
 use outlook_mapi::{sys::*, *};
 use windows_core::*;

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 //! Define [`Initialize`] and [`InitializeFlags`].
 
 use crate::sys;
