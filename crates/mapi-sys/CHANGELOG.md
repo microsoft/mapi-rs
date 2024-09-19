@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.0...outlook-mapi-sys-v0.6.1) - 2024-09-19
+
+### Other
+- *(deps)* pick up latest changes in MAPIStubLibrary
+
 ## [0.6.0](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.5.7...outlook-mapi-sys-v0.6.0) - 2024-09-05
 
 ### Other
