@@ -21590,6 +21590,9 @@ pub mod Office {
                 pub const PR_SENDER_SEARCH_KEY: u32 = 203227394u32;
                 pub const PR_SENDER_SID: u32 = 239927554u32;
                 pub const PR_SENDER_SID_AS_XML: u32 = 242090014u32;
+                pub const PR_SENDER_SMTP_ADDRESS: u32 = 1560346654u32;
+                pub const PR_SENDER_SMTP_ADDRESS_A: u32 = 1560346654u32;
+                pub const PR_SENDER_SMTP_ADDRESS_W: u32 = 1560346655u32;
                 pub const PR_SEND_RICH_INFO: u32 = 977272843u32;
                 pub const PR_SENSITIVITY: u32 = 3538947u32;
                 pub const PR_SENTMAIL_ENTRYID: u32 = 235536642u32;
@@ -21606,6 +21609,9 @@ pub mod Office {
                 pub const PR_SENT_REPRESENTING_SEARCH_KEY: u32 = 3866882u32;
                 pub const PR_SENT_REPRESENTING_SID: u32 = 239993090u32;
                 pub const PR_SENT_REPRESENTING_SID_AS_XML: u32 = 242155550u32;
+                pub const PR_SENT_REPRESENTING_SMTP_ADDRESS: u32 = 1560412190u32;
+                pub const PR_SENT_REPRESENTING_SMTP_ADDRESS_A: u32 = 1560412190u32;
+                pub const PR_SENT_REPRESENTING_SMTP_ADDRESS_W: u32 = 1560412191u32;
                 pub const PR_SERVICES: u32 = 1024327938u32;
                 pub const PR_SERVICE_DELETE_FILES: u32 = 1024462878u32;
                 pub const PR_SERVICE_DELETE_FILES_A: u32 = 1024462878u32;
