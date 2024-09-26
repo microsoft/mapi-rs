@@ -21438,6 +21438,9 @@ pub mod Office {
                 pub const PR_RCVD_REPRESENTING_SEARCH_KEY: u32 = 5374210u32;
                 pub const PR_RCVD_REPRESENTING_SID: u32 = 240582914u32;
                 pub const PR_RCVD_REPRESENTING_SID_AS_XML: u32 = 242745374u32;
+                pub const PR_RCVD_REPRESENTING_SMTP_ADDRESS: u32 = 1560805406u32;
+                pub const PR_RCVD_REPRESENTING_SMTP_ADDRESS_A: u32 = 1560805406u32;
+                pub const PR_RCVD_REPRESENTING_SMTP_ADDRESS_W: u32 = 1560805407u32;
                 pub const PR_READ: u32 = 241762315u32;
                 pub const PR_READ_RECEIPT_ENTRYID: u32 = 4587778u32;
                 pub const PR_READ_RECEIPT_REQUESTED: u32 = 2686987u32;
@@ -21458,6 +21461,9 @@ pub mod Office {
                 pub const PR_RECEIVED_BY_SEARCH_KEY: u32 = 5308674u32;
                 pub const PR_RECEIVED_BY_SID: u32 = 240517378u32;
                 pub const PR_RECEIVED_BY_SID_AS_XML: u32 = 242679838u32;
+                pub const PR_RECEIVED_BY_SMTP_ADDRESS: u32 = 1560739870u32;
+                pub const PR_RECEIVED_BY_SMTP_ADDRESS_A: u32 = 1560739870u32;
+                pub const PR_RECEIVED_BY_SMTP_ADDRESS_W: u32 = 1560739871u32;
                 pub const PR_RECEIVE_FOLDER_SETTINGS: u32 = 873791501u32;
                 pub const PR_RECIPIENT_CERTIFICATE: u32 = 202572034u32;
                 pub const PR_RECIPIENT_NUMBER: u32 = 1717698563u32;
