@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.1...outlook-mapi-sys-v0.6.2) - 2024-09-26
+
+### Fixed
+- pull new received-by SMTP props
+
 ## [0.6.1](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.0...outlook-mapi-sys-v0.6.1) - 2024-09-19
 
 ### Other
