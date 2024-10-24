@@ -77,7 +77,7 @@ fn main() -> Result<()> {
             eprintln!("Store {idx}: missing display name");
             continue;
         };
-        let display_name = unsafe { display_name.to_string() }
+        let display_name = unsafe { PCWSTR::from_raw(display_name.as_ptr()).to_string() }
             .unwrap_or_else(|err| format!("bad display name: {err}"));
 
         println!(
