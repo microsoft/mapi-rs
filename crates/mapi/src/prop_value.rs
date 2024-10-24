@@ -56,7 +56,7 @@ pub enum PropValueData<'a> {
     Binary(&'a [u8]),
 
     /// [`sys::PT_UNICODE`]
-    Unicode(PCWSTR),
+    Unicode(Vec<u16>),
 
     /// [`sys::PT_CLSID`]
     Guid(GUID),
@@ -146,7 +146,17 @@ impl<'a> From<&'a sys::SPropValue> for PropValue<'a> {
                     if value.Value.lpszW.is_null() {
                         PropValueData::Error(E_POINTER)
                     } else {
-                        PropValueData::Unicode(PCWSTR::from_raw(value.Value.lpszW.as_ptr()))
+                        let mut aligned = Vec::new();
+                        let mut raw = value.Value.lpszW.as_ptr();
+                        loop {
+                            let next = ptr::read_unaligned(raw);
+                            raw = raw.offset(1);
+                            aligned.push(next);
+                            if next == 0 {
+                                break;
+                            }
+                        }
+                        PropValueData::Unicode(aligned)
                     }
                 }
                 sys::PT_CLSID => {
@@ -318,7 +328,7 @@ mod tests {
     use super::*;
 
     use crate::{sys, PropTag, PropType};
-    use core::{mem, ptr};
+    use core::{iter, mem, ptr};
     use windows_core::{s, w};
 
     #[test]
@@ -516,11 +526,13 @@ mod tests {
         };
         value.Value.lpszW.0 = expected.0 as *mut _;
         let value = PropValue::from(&value);
+        let PropValueData::Unicode(actual) = value.value else {
+            panic!("wrong type");
+        };
         assert_eq!(u32::from(value.tag.prop_type()), sys::PT_UNICODE);
-        assert!(matches!(
-            value.value,
-            PropValueData::Unicode(actual) if actual.0 == expected.0
-        ));
+        let expected = unsafe { expected.as_wide() };
+        let expected: Vec<_> = expected.iter().copied().chain(iter::once(0)).collect();
+        assert_eq!(actual, expected);
     }
 
     #[test]
