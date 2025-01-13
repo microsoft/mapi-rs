@@ -169,7 +169,6 @@ mod mapi_bindgen {
 
     pub fn update_mapi_sys(winmd_path: PathBuf) -> super::Result<bool> {
         let source_path = generate_mapi_sys(winmd_path)?;
-        format_mapi_sys(&source_path)?;
         let source = read_mapi_sys(&source_path)?;
 
         let mut dest_path = get_mapi_sys_dir()?;
@@ -229,13 +228,6 @@ mod mapi_bindgen {
         Ok(pattern
             .replace_all(&outlook_mapi_sys, replacement)
             .to_string())
-    }
-
-    fn format_mapi_sys(source_path: &Path) -> super::Result<()> {
-        let mut cmd = ::std::process::Command::new("rustfmt");
-        cmd.arg(source_path);
-        cmd.output()?;
-        Ok(())
     }
 
     fn read_mapi_sys(source_path: &Path) -> super::Result<String> {
