@@ -33,5 +33,27 @@ pub use load_mapi::ensure_olmapi32;
 #[macro_use]
 extern crate outlook_mapi_stub;
 
+#[macro_export]
+macro_rules! link {
+    ($library:literal $abi:literal fn $($function:tt)*) => (
+        #[delay_load(name = $library)]
+        extern $abi {
+            pub fn $($function)*;
+        }
+    )
+}
+
+mod bindings;
+
 #[allow(non_snake_case)]
-pub mod Microsoft;
+pub mod Microsoft {
+    pub mod Office {
+        pub mod Outlook {
+            pub mod MAPI {
+                pub mod Win32 {
+                    pub use crate::bindings::*;
+                }
+            }
+        }
+    }
+}

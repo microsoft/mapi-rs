@@ -37,7 +37,7 @@ unsafe fn get_outlook_path(category: PCWSTR) -> Result<PathBuf> {
         category,
         QUALIFIER,
         INSTALLMODE_DEFAULT,
-        PWSTR::null(),
+        None,
         Some(&mut size),
     )) != ERROR_SUCCESS
     {
@@ -50,7 +50,7 @@ unsafe fn get_outlook_path(category: PCWSTR) -> Result<PathBuf> {
         category,
         QUALIFIER,
         INSTALLMODE_DEFAULT,
-        PWSTR::from_raw(buffer.as_mut_ptr()),
+        Some(PWSTR::from_raw(buffer.as_mut_ptr())),
         Some(&mut size),
     )) != ERROR_SUCCESS
         || size as usize != buffer.len() - 1
