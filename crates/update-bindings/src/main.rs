@@ -5,7 +5,7 @@ extern crate windows_bindgen;
 
 fn main() -> Result<()> {
     if mapi_bindgen::update_mapi_sys(mapi_winmd::generate_winmd()?)? {
-        println!("Microsoft.rs changed");
+        println!("bindings.rs changed");
     }
 
     Ok(())
@@ -174,7 +174,7 @@ mod mapi_bindgen {
 
         let mut dest_path = get_mapi_sys_dir()?;
         dest_path.push("src");
-        dest_path.push("Microsoft.rs");
+        dest_path.push("bindings.rs");
         let dest = read_mapi_sys(&dest_path)?;
 
         if source != dest {
@@ -190,21 +190,22 @@ mod mapi_bindgen {
 
         winmd_path.push(WINMD_FILE);
         let mut source_path = get_out_dir();
-        source_path.push("Microsoft.rs");
-        println!(
-            "{}",
-            bindgen([
-                "--in",
-                winmd_path.to_str().expect("invalid winmd path"),
-                "--out",
-                source_path.to_str().expect("invalid Microsoft.rs path"),
-                "--filter",
-                "Microsoft.Office.Outlook.MAPI.Win32",
-                "--config",
-                "implement",
-            ])
-            .expect("bindgen failed")
-        );
+        source_path.push("bindings.rs");
+        bindgen([
+            "--in",
+            "default",
+            "--in",
+            winmd_path.to_str().expect("invalid winmd path"),
+            "--out",
+            source_path.to_str().expect("invalid bindings.rs path"),
+            "--rustfmt",
+            "--reference",
+            "windows,skip-root,Windows",
+            "--filter",
+            "Microsoft.Office.Outlook.MAPI.Win32",
+            "--implement",
+            "--flat",
+        ]);
 
         let mut outlook_mapi_sys = Default::default();
         fs::File::open(source_path.clone())?.read_to_string(&mut outlook_mapi_sys)?;
@@ -223,8 +224,8 @@ mod mapi_bindgen {
     }
 
     fn patch_mapi_sys(outlook_mapi_sys: String) -> super::Result<String> {
-        let pattern = Regex::new(r#"#\s*\[\s*link\s*\("#)?;
-        let replacement = r#"#[delay_load("#;
+        let pattern = Regex::new(r#"windows_targets\s*::\s*link\!"#)?;
+        let replacement = r#"crate::link!"#;
         Ok(pattern
             .replace_all(&outlook_mapi_sys, replacement)
             .to_string())

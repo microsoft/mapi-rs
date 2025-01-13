@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.Windows.WinmdGenerator/0.61.15-preview">
+<Project Sdk="Microsoft.Windows.WinmdGenerator/0.63.31-preview">
 
   <PropertyGroup>
     <OutputWinmd>bin\Microsoft.Office.Outlook.MAPI.Win32.winmd</OutputWinmd>
-    <WinmdVersion>0.61.0.15</WinmdVersion>
+    <WinmdVersion>0.63.0.31</WinmdVersion>
     <GenerateAssemblyVersionInfo>false</GenerateAssemblyVersionInfo>
   </PropertyGroup>
 
