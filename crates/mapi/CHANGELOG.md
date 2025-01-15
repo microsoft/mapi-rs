@@ -12,22 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - update Cargo.toml dependencies
 
-## [0.15.4](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-v0.15.3...outlook-mapi-v0.15.4) - 2025-01-13
+## [0.15.4](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.3...outlook-mapi-v0.15.4) - 2025-01-13
 
 ### Other
 - update Cargo.toml dependencies
 
-## [0.15.3](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-v0.15.2...outlook-mapi-v0.15.3) - 2024-10-24
+## [0.15.3](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.2...outlook-mapi-v0.15.3) - 2024-10-24
 
 ### Fixed
 - copy potentially unaligned Unicode string pointers to owned `Vec<u16>`
 
-## [0.15.2](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-v0.15.1...outlook-mapi-v0.15.2) - 2024-09-26
+## [0.15.2](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.1...outlook-mapi-v0.15.2) - 2024-09-26
 
 ### Other
 - *(release)* update outlook-mapi-sys
 
-## [0.15.1](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-v0.15.0...outlook-mapi-v0.15.1) - 2024-09-19
+## [0.15.1](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.0...outlook-mapi-v0.15.1) - 2024-09-19
 
 ### Other
 - update Cargo.toml dependencies
