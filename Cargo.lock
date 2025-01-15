@@ -76,7 +76,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 name = "outlook-mapi"
 version = "0.15.4"
 dependencies = [
- "outlook-mapi-sys",
+ "outlook-mapi-sys 0.6.3",
  "regex",
  "serde",
  "serde_json",
@@ -98,6 +98,18 @@ dependencies = [
 [[package]]
 name = "outlook-mapi-sys"
 version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21588157496c0396452162baaf5b81505409efe217426f5d0714b0d5ecf1c585"
+dependencies = [
+ "outlook-mapi-stub",
+ "thiserror",
+ "windows",
+ "windows-core",
+]
+
+[[package]]
+name = "outlook-mapi-sys"
+version = "0.7.0"
 dependencies = [
  "outlook-mapi-stub",
  "thiserror",
