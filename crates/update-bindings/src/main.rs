@@ -161,8 +161,6 @@ mod mapi_bindgen {
         path::{Path, PathBuf},
     };
 
-    use regex::Regex;
-
     use windows_bindgen::bindgen;
 
     use super::mapi_path::*;
@@ -204,6 +202,7 @@ mod mapi_bindgen {
             "Microsoft.Office.Outlook.MAPI.Win32",
             "--implement",
             "--flat",
+            "--no-allow",
         ]);
 
         let mut outlook_mapi_sys = Default::default();
@@ -218,16 +217,8 @@ mod mapi_bindgen {
 "#
         )?;
 
-        source_file.write_all(patch_mapi_sys(outlook_mapi_sys)?.as_bytes())?;
+        source_file.write_all(outlook_mapi_sys.as_bytes())?;
         Ok(source_path)
-    }
-
-    fn patch_mapi_sys(outlook_mapi_sys: String) -> super::Result<String> {
-        let pattern = Regex::new(r#"windows_targets\s*::\s*link\!"#)?;
-        let replacement = r#"crate::link!"#;
-        Ok(pattern
-            .replace_all(&outlook_mapi_sys, replacement)
-            .to_string())
     }
 
     fn read_mapi_sys(source_path: &Path) -> super::Result<String> {
