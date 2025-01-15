@@ -12,17 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - simplify windows_targets::link override
 
-## [0.6.3](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.2...outlook-mapi-sys-v0.6.3) - 2025-01-13
+## [0.6.3](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.6.2...outlook-mapi-sys-v0.6.3) - 2025-01-13
 
 ### Other
 - update to windows-rs 0.61 release
 
-## [0.6.2](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.1...outlook-mapi-sys-v0.6.2) - 2024-09-26
+## [0.6.2](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.6.1...outlook-mapi-sys-v0.6.2) - 2024-09-26
 
 ### Fixed
 - pull new received-by SMTP props
 
-## [0.6.1](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.0...outlook-mapi-sys-v0.6.1) - 2024-09-19
+## [0.6.1](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.6.0...outlook-mapi-sys-v0.6.1) - 2024-09-19
 
 ### Other
 - *(deps)* pick up latest changes in MAPIStubLibrary
