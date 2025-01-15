@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.6.3...outlook-mapi-sys-v0.7.0) - 2025-01-15
+
+### Fixed
+
+- simplify windows_targets::link override
+
 ## [0.6.3](https://github.com/wravery/outlook-mapi-rs/compare/outlook-mapi-sys-v0.6.2...outlook-mapi-sys-v0.6.3) - 2025-01-13
 
 ### Other

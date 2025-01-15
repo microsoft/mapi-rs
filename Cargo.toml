@@ -22,7 +22,7 @@ categories = [ "os::windows-apis" ]
 
 [workspace.dependencies]
 outlook-mapi-stub = "0.3.0"
-outlook-mapi-sys = { version = "0.6.3", default-features = false }
+outlook-mapi-sys = { version = "0.7.0", default-features = false }
 
 cmake = "0.1"
 proc-macro2 = "1.0"
