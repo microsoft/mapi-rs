@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.6](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.5...outlook-mapi-v0.15.6) - 2025-03-14
+
+### Other
+- update Cargo.toml dependencies
+
 ## [0.15.5](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.4...outlook-mapi-v0.15.5) - 2025-01-15
 
 ### Other

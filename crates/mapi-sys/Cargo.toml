@@ -1,6 +1,6 @@
 [package]
 name = "outlook-mapi-sys"
-version = "0.7.0"
+version = "0.7.1"
 description = "Bindings generated with the windows crate for the Outlook MAPI interface"
 
 authors.workspace = true

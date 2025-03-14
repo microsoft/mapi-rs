@@ -45,7 +45,7 @@ pub mod Microsoft {
         pub mod Outlook {
             pub mod MAPI {
                 pub mod Win32 {
-                    mod windows_targets {
+                    mod windows_link {
                         macro_rules! link_mapi {
                             ($library:literal $abi:literal fn $($function:tt)*) => (
                                 #[delay_load(name = $library)]
