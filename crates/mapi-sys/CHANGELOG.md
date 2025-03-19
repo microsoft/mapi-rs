@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.7.1...outlook-mapi-sys-v0.7.2) - 2025-03-19
+
+### Fixed
+- update windows-rs and Rust edition
+
 ## [0.7.1](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-sys-v0.7.0...outlook-mapi-sys-v0.7.1) - 2025-03-14
 
 ### Other

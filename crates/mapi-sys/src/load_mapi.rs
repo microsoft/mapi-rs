@@ -33,26 +33,30 @@ unsafe fn get_outlook_path(category: PCWSTR) -> Result<PathBuf> {
     const QUALIFIER: PCWSTR = w!("outlook.exe");
 
     let mut size = 0;
-    if WIN32_ERROR(MsiProvideQualifiedComponentW(
-        category,
-        QUALIFIER,
-        INSTALLMODE_DEFAULT,
-        None,
-        Some(&mut size),
-    )) != ERROR_SUCCESS
+    if WIN32_ERROR(unsafe {
+        MsiProvideQualifiedComponentW(
+            category,
+            QUALIFIER,
+            INSTALLMODE_DEFAULT,
+            None,
+            Some(&mut size),
+        )
+    }) != ERROR_SUCCESS
     {
         return Err(Error::from(E_INVALIDARG));
     }
 
     size += 1;
     let mut buffer = vec![0; size as usize];
-    if WIN32_ERROR(MsiProvideQualifiedComponentW(
-        category,
-        QUALIFIER,
-        INSTALLMODE_DEFAULT,
-        Some(PWSTR::from_raw(buffer.as_mut_ptr())),
-        Some(&mut size),
-    )) != ERROR_SUCCESS
+    if WIN32_ERROR(unsafe {
+        MsiProvideQualifiedComponentW(
+            category,
+            QUALIFIER,
+            INSTALLMODE_DEFAULT,
+            Some(PWSTR::from_raw(buffer.as_mut_ptr())),
+            Some(&mut size),
+        )
+    }) != ERROR_SUCCESS
         || size as usize != buffer.len() - 1
     {
         return Err(Error::from(E_INVALIDARG));
