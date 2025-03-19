@@ -1,6 +1,6 @@
 [package]
 name = "outlook-mapi-stub"
-version = "0.3.0"
+version = "0.3.1"
 description = "Macros which generate delay load helpers for olmapi32.dll"
 
 authors.workspace = true
