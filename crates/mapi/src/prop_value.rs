@@ -3,7 +3,7 @@
 
 //! Define [`PropValue`] and [`PropValueData`].
 
-use crate::{sys, PropTag};
+use crate::{PropTag, sys};
 use core::{ffi, ptr, slice};
 use windows::Win32::{
     Foundation::{E_INVALIDARG, E_POINTER, FILETIME},
@@ -327,7 +327,7 @@ impl<'a> From<&'a sys::SPropValue> for PropValue<'a> {
 mod tests {
     use super::*;
 
-    use crate::{sys, PropTag, PropType};
+    use crate::{PropTag, PropType, sys};
     use core::{iter, mem, ptr};
     use windows_core::{s, w};
 

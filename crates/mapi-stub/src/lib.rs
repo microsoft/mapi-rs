@@ -4,13 +4,12 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
-    braced,
+    Abi, Expr, ExprLit, FnArg, ForeignItemFn, Ident, Lit, LitStr, Meta, MetaNameValue, Pat,
+    PatType, Result, ReturnType, braced,
     parse::{Parse, ParseStream},
     parse_macro_input,
     punctuated::{Pair, Punctuated},
     token::Comma,
-    Abi, Expr, ExprLit, FnArg, ForeignItemFn, Ident, Lit, LitStr, Meta, MetaNameValue, Pat,
-    PatType, Result, ReturnType,
 };
 
 struct DelayLoadAttr {
@@ -289,7 +288,7 @@ fn impl_delay_load(attr: &DelayLoadAttr, ast: &ExternDecl) -> TokenStream {
         }
     };
 
-    let gen = quote! {
+    let output = quote! {
         unsafe fn #name(#inputs) #output {
             use std::{mem, sync::OnceLock};
             use ::windows_core::*;
@@ -302,5 +301,5 @@ fn impl_delay_load(attr: &DelayLoadAttr, ast: &ExternDecl) -> TokenStream {
         }
     };
 
-    gen.into()
+    output.into()
 }

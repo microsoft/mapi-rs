@@ -3,7 +3,7 @@
 
 //! Define [`RowSet`].
 
-use crate::{sys, Row};
+use crate::{Row, sys};
 use core::{ptr, slice};
 
 /// Container for a [`sys::SRowSet`] structure, such as the rows returned from

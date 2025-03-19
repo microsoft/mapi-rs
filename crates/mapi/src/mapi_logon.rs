@@ -3,7 +3,7 @@
 
 //! Define [`Logon`] and [`LogonFlags`].
 
-use crate::{sys, Initialize};
+use crate::{Initialize, sys};
 use std::{iter, ptr, sync::Arc};
 use windows::Win32::Foundation::*;
 use windows_core::*;

@@ -372,7 +372,7 @@ impl<'a, T> MAPIUninit<'a, T> {
     /// before calling [`MAPIUninit::assume_init`]. It is undefined behavior to leave it
     /// uninitialized once we start accessing it.
     pub unsafe fn assume_init(self) -> MAPIBuffer<'a, T> {
-        MAPIBuffer(self.0.assume_init())
+        MAPIBuffer(unsafe { self.0.assume_init() })
     }
 }
 
@@ -438,7 +438,7 @@ where
     /// This version does not perform any validation of the buffer size, so the typed accessors are
     /// inherently unsafe. The only thing it handles is a `null` check.
     pub unsafe fn as_mut(&mut self) -> Option<&mut T> {
-        self.0.as_mut()
+        unsafe { self.0.as_mut() }
     }
 
     /// Access a slice with `count` elements of type `T`.
@@ -451,7 +451,7 @@ where
         if self.0.is_null() {
             None
         } else {
-            Some(slice::from_raw_parts_mut(self.0, count))
+            Some(unsafe { slice::from_raw_parts_mut(self.0, count) })
         }
     }
 }

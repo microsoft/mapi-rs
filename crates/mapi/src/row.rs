@@ -3,7 +3,7 @@
 
 //! Define [`Row`].
 
-use crate::{sys, PropValue};
+use crate::{PropValue, sys};
 use core::{mem, slice};
 use std::ptr;
 
@@ -35,11 +35,7 @@ impl Row {
 
     /// Get the number of [`sys::SPropValue`] column values in the [`Row`].
     pub fn len(&self) -> usize {
-        if self.props.is_null() {
-            0
-        } else {
-            self.count
-        }
+        if self.props.is_null() { 0 } else { self.count }
     }
 
     /// Iterate over the [`sys::SPropValue`] column values in the [`Row`].
