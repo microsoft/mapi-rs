@@ -17,7 +17,7 @@ const O12_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{24AAE126-0911-478F-A01
 const O11_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{BC174BAD-2F53-4855-A1D5-0D575C19B1EA}");
 const O11_CATEGORY_GUID_CORE_OFFICE_DEBUG: PCWSTR = w!("{BC174BAD-2F53-4855-A1D5-1D575C19B1EA}");
 
-const OUTLOOK_QUALIFIED_COMPONENTS: [PCWSTR; 6] = [
+pub const OUTLOOK_QUALIFIED_COMPONENTS: [PCWSTR; 6] = [
     O16_CATEGORY_GUID_CORE_OFFICE_RETAIL,
     O15_CATEGORY_GUID_CORE_OFFICE_RETAIL,
     O14_CATEGORY_GUID_CORE_OFFICE_RETAIL,
@@ -26,17 +26,12 @@ const OUTLOOK_QUALIFIED_COMPONENTS: [PCWSTR; 6] = [
     O11_CATEGORY_GUID_CORE_OFFICE_DEBUG,
 ];
 
-unsafe fn get_outlook_path(category: PCWSTR) -> Result<PathBuf> {
-    #[cfg(target_arch = "x86_64")]
-    const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
-    #[cfg(not(target_arch = "x86_64"))]
-    const QUALIFIER: PCWSTR = w!("outlook.exe");
-
+pub unsafe fn get_outlook_mapi_path(category: PCWSTR, qualifier: PCWSTR) -> Result<PathBuf> {
     let mut size = 0;
     if WIN32_ERROR(unsafe {
         MsiProvideQualifiedComponentW(
             category,
-            QUALIFIER,
+            qualifier,
             INSTALLMODE_DEFAULT,
             None,
             Some(&mut size),
@@ -51,7 +46,7 @@ unsafe fn get_outlook_path(category: PCWSTR) -> Result<PathBuf> {
     if WIN32_ERROR(unsafe {
         MsiProvideQualifiedComponentW(
             category,
-            QUALIFIER,
+            qualifier,
             INSTALLMODE_DEFAULT,
             Some(PWSTR::from_raw(buffer.as_mut_ptr())),
             Some(&mut size),
@@ -79,8 +74,13 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
             return module;
         }
 
+        #[cfg(target_arch = "x86_64")]
+        const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
+        #[cfg(not(target_arch = "x86_64"))]
+        const QUALIFIER: PCWSTR = w!("outlook.exe");
+
         for category in OUTLOOK_QUALIFIED_COMPONENTS {
-            if let Ok(path) = get_outlook_path(category) {
+            if let Ok(path) = get_outlook_mapi_path(category, QUALIFIER) {
                 let buffer: Vec<_> = path
                     .to_str()
                     .ok_or_else(|| Error::from(E_INVALIDARG))?
