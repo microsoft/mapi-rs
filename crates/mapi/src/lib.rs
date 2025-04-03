@@ -14,6 +14,10 @@ pub mod sys {
     pub use outlook_mapi_sys::Microsoft::Office::Outlook::MAPI::Win32::*;
 }
 
+pub mod installation {
+    pub use outlook_mapi_sys::installation::*;
+}
+
 pub mod mapi_initialize;
 pub mod mapi_logon;
 pub mod mapi_ptr;

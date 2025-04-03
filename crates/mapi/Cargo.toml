@@ -1,6 +1,6 @@
 [package]
 name = "outlook-mapi"
-version = "0.15.7"
+version = "0.15.8"
 description = "Rust bindings for the Outlook MAPI interface"
 
 authors.workspace = true
