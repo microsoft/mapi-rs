@@ -30,6 +30,9 @@ fn get_mapi_module() -> HMODULE {
 #[cfg(feature = "olmapi32")]
 pub use load_mapi::ensure_olmapi32;
 
+#[cfg(feature = "olmapi32")]
+pub mod installation;
+
 #[macro_use]
 extern crate outlook_mapi_stub;
 
