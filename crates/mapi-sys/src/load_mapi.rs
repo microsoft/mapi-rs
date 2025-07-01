@@ -74,20 +74,38 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
             return module;
         }
 
-        #[cfg(target_arch = "x86_64")]
-        const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
-        #[cfg(not(target_arch = "x86_64"))]
-        const QUALIFIER: PCWSTR = w!("outlook.exe");
-
-        for category in OUTLOOK_QUALIFIED_COMPONENTS {
-            if let Ok(path) = get_outlook_mapi_path(category, QUALIFIER) {
-                let buffer: Vec<_> = path
+        // Use our new installation detection to find Office/MAPI installations
+        use crate::installation::{check_outlook_mapi_installation, InstallationState};
+        
+        match check_outlook_mapi_installation() {
+            InstallationState::Installed(_, dll_path) => {
+                let path_str = dll_path
                     .to_str()
-                    .ok_or_else(|| Error::from(E_INVALIDARG))?
+                    .ok_or_else(|| Error::from(E_INVALIDARG))?;
+                let buffer: Vec<_> = path_str
                     .encode_utf16()
                     .chain(iter::once(0))
                     .collect();
                 return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
+            }
+            InstallationState::NotInstalled => {
+                // Fall back to legacy method for backward compatibility
+                #[cfg(target_arch = "x86_64")]
+                const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
+                #[cfg(not(target_arch = "x86_64"))]
+                const QUALIFIER: PCWSTR = w!("outlook.exe");
+
+                for category in OUTLOOK_QUALIFIED_COMPONENTS {
+                    if let Ok(path) = get_outlook_mapi_path(category, QUALIFIER) {
+                        let buffer: Vec<_> = path
+                            .to_str()
+                            .ok_or_else(|| Error::from(E_INVALIDARG))?
+                            .encode_utf16()
+                            .chain(iter::once(0))
+                            .collect();
+                        return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
+                    }
+                }
             }
         }
     }
