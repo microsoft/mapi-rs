@@ -11,8 +11,18 @@ pub enum Architecture {
     X86,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum DetectionMethod {
+    /// Found via Outlook-specific Windows Installer API (legacy method)
+    OutlookInstaller,
+    /// Found via Office ClickToRun registry detection
+    OfficeClickToRun,
+    /// Found via Office MSI registry detection  
+    OfficeMsi,
+}
+
 pub enum InstallationState {
-    Installed(Architecture, PathBuf),
+    Installed(Architecture, PathBuf, DetectionMethod),
     NotInstalled,
 }
 
@@ -22,6 +32,7 @@ pub struct OfficeInstallation {
     pub version: String,
     pub install_path: PathBuf,
     pub mapi_dll_path: PathBuf,
+    pub detection_method: DetectionMethod,
 }
 
 // Registry paths for Office installations
@@ -33,13 +44,13 @@ const OFFICE_REGISTRY_PATHS: &[&str] = &[
 
 pub fn check_outlook_mapi_installation() -> InstallationState {
     // First try the original Outlook-specific method for backward compatibility
-    if let InstallationState::Installed(arch, path) = check_outlook_installation_legacy() {
-        return InstallationState::Installed(arch, path);
+    if let InstallationState::Installed(arch, path, detection_method) = check_outlook_installation_legacy() {
+        return InstallationState::Installed(arch, path, detection_method);
     }
 
     // Then check for Office installations via registry
     if let Some(installation) = find_office_installations().into_iter().next() {
-        return InstallationState::Installed(installation.architecture, installation.mapi_dll_path);
+        return InstallationState::Installed(installation.architecture, installation.mapi_dll_path, installation.detection_method);
     }
 
     InstallationState::NotInstalled
@@ -55,7 +66,7 @@ fn check_outlook_installation_legacy() -> InstallationState {
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for (bitness, qualifier) in OUTLOOK_QUALIFIERS {
             if let Ok(path) = unsafe { get_outlook_mapi_path(category, qualifier) } {
-                return InstallationState::Installed(bitness, path);
+                return InstallationState::Installed(bitness, path, DetectionMethod::OutlookInstaller);
             }
         }
     }
@@ -136,12 +147,18 @@ fn check_office_registry_path(registry_path: &str, arch: Architecture, wow64_fla
                 for mapi_path in &mapi_paths {
                     if mapi_path.exists() {
                         let version = extract_version_from_path(registry_path);
+                        let detection_method = if registry_path.contains("ClickToRun") {
+                            DetectionMethod::OfficeClickToRun
+                        } else {
+                            DetectionMethod::OfficeMsi
+                        };
                         let _ = RegCloseKey(hkey);
                         return Some(OfficeInstallation {
                             architecture: arch,
                             version,
                             install_path: install_path.clone(),
                             mapi_dll_path: mapi_path.clone(),
+                            detection_method
                         });
                     }
                 }

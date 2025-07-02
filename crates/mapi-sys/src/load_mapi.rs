@@ -78,7 +78,7 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
         use crate::installation::{check_outlook_mapi_installation, InstallationState};
         
         match check_outlook_mapi_installation() {
-            InstallationState::Installed(_, dll_path) => {
+            InstallationState::Installed(_, dll_path, _) => {
                 let path_str = dll_path
                     .to_str()
                     .ok_or_else(|| Error::from(E_INVALIDARG))?;
