@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use windows::Win32::System::Registry::*;
-use windows_core::{PCWSTR, w, HSTRING};
+use windows_core::{HSTRING, PCWSTR, w};
 
 use crate::load_mapi::{OUTLOOK_QUALIFIED_COMPONENTS, get_outlook_mapi_path};
 
@@ -38,19 +38,25 @@ pub struct OfficeInstallation {
 // Registry paths for Office installations
 // Only checking Office 16.0+ as earlier versions don't have the MAPI support we need
 const OFFICE_REGISTRY_PATHS: &[&str] = &[
-    r"SOFTWARE\Microsoft\Office\ClickToRun\Configuration",  // Modern Office 365/2016+
-    r"SOFTWARE\Microsoft\Office\16.0\Common\InstallRoot",   // Traditional MSI Office 2016
+    r"SOFTWARE\Microsoft\Office\ClickToRun\Configuration", // Modern Office 365/2016+
+    r"SOFTWARE\Microsoft\Office\16.0\Common\InstallRoot",  // Traditional MSI Office 2016
 ];
 
 pub fn check_outlook_mapi_installation() -> InstallationState {
     // First try the original Outlook-specific method for backward compatibility
-    if let InstallationState::Installed(arch, path, detection_method) = check_outlook_installation_legacy() {
+    if let InstallationState::Installed(arch, path, detection_method) =
+        check_outlook_installation_legacy()
+    {
         return InstallationState::Installed(arch, path, detection_method);
     }
 
     // Then check for Office installations via registry
     if let Some(installation) = find_office_installations().into_iter().next() {
-        return InstallationState::Installed(installation.architecture, installation.mapi_dll_path, installation.detection_method);
+        return InstallationState::Installed(
+            installation.architecture,
+            installation.mapi_dll_path,
+            installation.detection_method,
+        );
     }
 
     InstallationState::NotInstalled
@@ -66,7 +72,11 @@ fn check_outlook_installation_legacy() -> InstallationState {
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for (bitness, qualifier) in OUTLOOK_QUALIFIERS {
             if let Ok(path) = unsafe { get_outlook_mapi_path(category, qualifier) } {
-                return InstallationState::Installed(bitness, path, DetectionMethod::OutlookInstaller);
+                return InstallationState::Installed(
+                    bitness,
+                    path,
+                    DetectionMethod::OutlookInstaller,
+                );
             }
         }
     }
@@ -77,7 +87,7 @@ fn check_outlook_installation_legacy() -> InstallationState {
 /// Find all Office installations that include MAPI support
 pub fn find_office_installations() -> Vec<OfficeInstallation> {
     let mut installations = Vec::new();
-    
+
     // Check both 64-bit and 32-bit registry views
     for &wow64_flag in &[KEY_WOW64_64KEY, KEY_WOW64_32KEY] {
         let arch = if wow64_flag == KEY_WOW64_64KEY {
@@ -92,11 +102,14 @@ pub fn find_office_installations() -> Vec<OfficeInstallation> {
     // Remove duplicates and sort by version (newest first)
     installations.sort_by(|a, b| b.version.cmp(&a.version));
     installations.dedup_by(|a, b| a.install_path == b.install_path);
-    
+
     installations
 }
 
-fn check_office_registry_paths(arch: Architecture, wow64_flag: REG_SAM_FLAGS) -> Vec<OfficeInstallation> {
+fn check_office_registry_paths(
+    arch: Architecture,
+    wow64_flag: REG_SAM_FLAGS,
+) -> Vec<OfficeInstallation> {
     let mut installations = Vec::new();
 
     for &registry_path in OFFICE_REGISTRY_PATHS {
@@ -108,19 +121,24 @@ fn check_office_registry_paths(arch: Architecture, wow64_flag: REG_SAM_FLAGS) ->
     installations
 }
 
-fn check_office_registry_path(registry_path: &str, arch: Architecture, wow64_flag: REG_SAM_FLAGS) -> Option<OfficeInstallation> {
+fn check_office_registry_path(
+    registry_path: &str,
+    arch: Architecture,
+    wow64_flag: REG_SAM_FLAGS,
+) -> Option<OfficeInstallation> {
     unsafe {
         let mut hkey = HKEY::default();
         let path_hstring = HSTRING::from(registry_path);
-        
+
         if RegOpenKeyExW(
             HKEY_LOCAL_MACHINE,
             &path_hstring,
             Some(0),
             KEY_READ | wow64_flag,
             &mut hkey,
-        ).is_ok() {
-            
+        )
+        .is_ok()
+        {
             // Try to get the install path - different key names for different registry paths
             let install_path = if registry_path.contains("ClickToRun") {
                 // For ClickToRun installations, get InstallationPath and construct root\Office16 path
@@ -158,12 +176,12 @@ fn check_office_registry_path(registry_path: &str, arch: Architecture, wow64_fla
                             version,
                             install_path: install_path.clone(),
                             mapi_dll_path: mapi_path.clone(),
-                            detection_method
+                            detection_method,
                         });
                     }
                 }
             }
-            
+
             let _ = RegCloseKey(hkey);
         }
     }
@@ -174,20 +192,14 @@ fn check_office_registry_path(registry_path: &str, arch: Architecture, wow64_fla
 fn read_registry_string(hkey: &HKEY, value_name: PCWSTR) -> Option<String> {
     unsafe {
         let mut buffer_size = 0u32;
-        
+
         // Get the required buffer size
-        if RegQueryValueExW(
-            *hkey,
-            value_name,
-            None,
-            None,
-            None,
-            Some(&mut buffer_size),
-        ).is_ok() && buffer_size > 0 {
-            
+        if RegQueryValueExW(*hkey, value_name, None, None, None, Some(&mut buffer_size)).is_ok()
+            && buffer_size > 0
+        {
             let mut buffer = vec![0u16; (buffer_size / 2) as usize];
             let mut actual_size = buffer_size;
-            
+
             if RegQueryValueExW(
                 *hkey,
                 value_name,
@@ -195,7 +207,9 @@ fn read_registry_string(hkey: &HKEY, value_name: PCWSTR) -> Option<String> {
                 None,
                 Some(buffer.as_mut_ptr() as *mut u8),
                 Some(&mut actual_size),
-            ).is_ok() {
+            )
+            .is_ok()
+            {
                 // Remove null terminator and convert to String
                 if let Some(null_pos) = buffer.iter().position(|&x| x == 0) {
                     buffer.truncate(null_pos);
@@ -204,7 +218,7 @@ fn read_registry_string(hkey: &HKEY, value_name: PCWSTR) -> Option<String> {
             }
         }
     }
-    
+
     None
 }
 

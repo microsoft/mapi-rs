@@ -75,17 +75,12 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
         }
 
         // Use our new installation detection to find Office/MAPI installations
-        use crate::installation::{check_outlook_mapi_installation, InstallationState};
-        
+        use crate::installation::{InstallationState, check_outlook_mapi_installation};
+
         match check_outlook_mapi_installation() {
             InstallationState::Installed(_, dll_path, _) => {
-                let path_str = dll_path
-                    .to_str()
-                    .ok_or_else(|| Error::from(E_INVALIDARG))?;
-                let buffer: Vec<_> = path_str
-                    .encode_utf16()
-                    .chain(iter::once(0))
-                    .collect();
+                let path_str = dll_path.to_str().ok_or_else(|| Error::from(E_INVALIDARG))?;
+                let buffer: Vec<_> = path_str.encode_utf16().chain(iter::once(0)).collect();
                 return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
             }
             InstallationState::NotInstalled => {
