@@ -10,6 +10,46 @@ use windows_core::*;
 
 const OLMAPI32_MODULE: PCWSTR = w!("olmapi32.dll");
 
+// Office application qualifiers for MAPI detection
+pub const OFFICE_QUALIFIERS: [(crate::installation::Architecture, PCWSTR); 14] = [
+    // Outlook
+    (
+        crate::installation::Architecture::X64,
+        w!("outlook.x64.exe"),
+    ),
+    (crate::installation::Architecture::X86, w!("outlook.exe")),
+    // Excel - most common Office app
+    (crate::installation::Architecture::X64, w!("excel.x64.exe")),
+    (crate::installation::Architecture::X86, w!("excel.exe")),
+    // Word - also very common
+    (
+        crate::installation::Architecture::X64,
+        w!("winword.x64.exe"),
+    ),
+    (crate::installation::Architecture::X86, w!("winword.exe")),
+    // PowerPoint
+    (
+        crate::installation::Architecture::X64,
+        w!("powerpnt.x64.exe"),
+    ),
+    (crate::installation::Architecture::X86, w!("powerpnt.exe")),
+    // Access
+    (
+        crate::installation::Architecture::X64,
+        w!("msaccess.x64.exe"),
+    ),
+    (crate::installation::Architecture::X86, w!("msaccess.exe")),
+    // OneNote
+    (
+        crate::installation::Architecture::X64,
+        w!("onenote.x64.exe"),
+    ),
+    (crate::installation::Architecture::X86, w!("onenote.exe")),
+    // Publisher
+    (crate::installation::Architecture::X64, w!("mspub.x64.exe")),
+    (crate::installation::Architecture::X86, w!("mspub.exe")),
+];
+
 const O16_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{5812C571-53F0-4467-BEFA-0A4F47A9437C}");
 const O15_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{E83B4360-C208-4325-9504-0D23003A74A5}");
 const O14_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{1E77DE88-BCAB-4C37-B9E5-073AF52DFD7A}");
@@ -74,32 +114,17 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
             return module;
         }
 
-        // Use our new installation detection to find Office/MAPI installations
-        use crate::installation::{InstallationState, check_outlook_mapi_installation};
-
-        match check_outlook_mapi_installation() {
-            InstallationState::Installed(_, dll_path, _) => {
-                let path_str = dll_path.to_str().ok_or_else(|| Error::from(E_INVALIDARG))?;
-                let buffer: Vec<_> = path_str.encode_utf16().chain(iter::once(0)).collect();
-                return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
-            }
-            InstallationState::NotInstalled => {
-                // Fall back to legacy method for backward compatibility
-                #[cfg(target_arch = "x86_64")]
-                const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
-                #[cfg(not(target_arch = "x86_64"))]
-                const QUALIFIER: PCWSTR = w!("outlook.exe");
-
-                for category in OUTLOOK_QUALIFIED_COMPONENTS {
-                    if let Ok(path) = get_outlook_mapi_path(category, QUALIFIER) {
-                        let buffer: Vec<_> = path
-                            .to_str()
-                            .ok_or_else(|| Error::from(E_INVALIDARG))?
-                            .encode_utf16()
-                            .chain(iter::once(0))
-                            .collect();
-                        return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
-                    }
+        // Try all Office app qualifiers with all GUIDs
+        for category in OUTLOOK_QUALIFIED_COMPONENTS {
+            for (_arch, qualifier) in OFFICE_QUALIFIERS {
+                if let Ok(path) = get_outlook_mapi_path(category, qualifier) {
+                    let buffer: Vec<_> = path
+                        .to_str()
+                        .ok_or_else(|| Error::from(E_INVALIDARG))?
+                        .encode_utf16()
+                        .chain(iter::once(0))
+                        .collect();
+                    return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
                 }
             }
         }
