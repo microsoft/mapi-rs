@@ -18,10 +18,10 @@ pub const OFFICE_QUALIFIERS: [(crate::installation::Architecture, PCWSTR); 14] =
         w!("outlook.x64.exe"),
     ),
     (crate::installation::Architecture::X86, w!("outlook.exe")),
-    // Excel - most common Office app
+    // Excel
     (crate::installation::Architecture::X64, w!("excel.x64.exe")),
     (crate::installation::Architecture::X86, w!("excel.exe")),
-    // Word - also very common
+    // Word
     (
         crate::installation::Architecture::X64,
         w!("winword.x64.exe"),
