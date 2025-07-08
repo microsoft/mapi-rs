@@ -10,44 +10,20 @@ use windows_core::*;
 
 const OLMAPI32_MODULE: PCWSTR = w!("olmapi32.dll");
 
-// Office application qualifiers for MAPI detection
-pub const OFFICE_QUALIFIERS: [(crate::installation::Architecture, PCWSTR); 14] = [
-    // Outlook
-    (
-        crate::installation::Architecture::X64,
-        w!("outlook.x64.exe"),
-    ),
-    (crate::installation::Architecture::X86, w!("outlook.exe")),
+// Office application fallback qualifiers for MAPI detection
+pub const OFFICE_QUALIFIERS: [PCWSTR; 6] = [
     // Excel
-    (crate::installation::Architecture::X64, w!("excel.x64.exe")),
-    (crate::installation::Architecture::X86, w!("excel.exe")),
+    w!("excel.exe"),
     // Word
-    (
-        crate::installation::Architecture::X64,
-        w!("winword.x64.exe"),
-    ),
-    (crate::installation::Architecture::X86, w!("winword.exe")),
+    w!("winword.exe"),
     // PowerPoint
-    (
-        crate::installation::Architecture::X64,
-        w!("powerpnt.x64.exe"),
-    ),
-    (crate::installation::Architecture::X86, w!("powerpnt.exe")),
+    w!("powerpnt.exe"),
     // Access
-    (
-        crate::installation::Architecture::X64,
-        w!("msaccess.x64.exe"),
-    ),
-    (crate::installation::Architecture::X86, w!("msaccess.exe")),
+    w!("msaccess.exe"),
     // OneNote
-    (
-        crate::installation::Architecture::X64,
-        w!("onenote.x64.exe"),
-    ),
-    (crate::installation::Architecture::X86, w!("onenote.exe")),
+    w!("onenote.exe"),
     // Publisher
-    (crate::installation::Architecture::X64, w!("mspub.x64.exe")),
-    (crate::installation::Architecture::X86, w!("mspub.exe")),
+    w!("mspub.exe"),
 ];
 
 const O16_CATEGORY_GUID_CORE_OFFICE_RETAIL: PCWSTR = w!("{5812C571-53F0-4467-BEFA-0A4F47A9437C}");
@@ -67,6 +43,18 @@ pub const OUTLOOK_QUALIFIED_COMPONENTS: [PCWSTR; 6] = [
 ];
 
 pub unsafe fn get_outlook_mapi_path(category: PCWSTR, qualifier: PCWSTR) -> Result<PathBuf> {
+    unsafe { get_office_component_path(category, qualifier, Some("olmapi32.dll")) }
+}
+
+pub unsafe fn get_office_executable_path(category: PCWSTR, qualifier: PCWSTR) -> Result<PathBuf> {
+    unsafe { get_office_component_path(category, qualifier, None) }
+}
+
+unsafe fn get_office_component_path(
+    category: PCWSTR,
+    qualifier: PCWSTR,
+    component: Option<&str>,
+) -> Result<PathBuf> {
     let mut size = 0;
     if WIN32_ERROR(unsafe {
         MsiProvideQualifiedComponentW(
@@ -98,11 +86,20 @@ pub unsafe fn get_outlook_mapi_path(category: PCWSTR, qualifier: PCWSTR) -> Resu
     }
 
     let mut path = PathBuf::from(String::from_utf16(&buffer[0..(buffer.len())])?);
-    if !path.pop() {
-        return Err(Error::from(E_INVALIDARG));
+
+    match component {
+        Some(comp) => {
+            // For components like olmapi32.dll, pop the executable and add the component
+            if !path.pop() {
+                return Err(Error::from(E_INVALIDARG));
+            }
+            path.push(comp);
+        }
+        None => {
+            // For executables, return the path as-is
+        }
     }
 
-    path.push("olmapi32.dll");
     Ok(path)
 }
 
@@ -114,9 +111,27 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
             return module;
         }
 
-        // Try all Office app qualifiers with all GUIDs
+        #[cfg(target_arch = "x86_64")]
+        const QUALIFIER: PCWSTR = w!("outlook.x64.exe");
+        #[cfg(not(target_arch = "x86_64"))]
+        const QUALIFIER: PCWSTR = w!("outlook.exe");
+
+        // First, try the standard Outlook qualified components
         for category in OUTLOOK_QUALIFIED_COMPONENTS {
-            for (_arch, qualifier) in OFFICE_QUALIFIERS {
+            if let Ok(path) = get_outlook_mapi_path(category, QUALIFIER) {
+                let buffer: Vec<_> = path
+                    .to_str()
+                    .ok_or_else(|| Error::from(E_INVALIDARG))?
+                    .encode_utf16()
+                    .chain(iter::once(0))
+                    .collect();
+                return LoadLibraryW(PCWSTR::from_raw(buffer.as_ptr()));
+            }
+        }
+
+        // Try fallback Office app qualifiers
+        for category in OUTLOOK_QUALIFIED_COMPONENTS {
+            for qualifier in OFFICE_QUALIFIERS {
                 if let Ok(path) = get_outlook_mapi_path(category, qualifier) {
                     let buffer: Vec<_> = path
                         .to_str()
