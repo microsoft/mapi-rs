@@ -4,7 +4,7 @@ use windows_core::{PCWSTR, w};
 
 use crate::load_mapi::{
     OFFICE_QUALIFIERS, OUTLOOK_QUALIFIED_COMPONENTS, get_office_executable_path,
-    get_outlook_mapi_path,
+    get_office_mapi_path_no_install, get_outlook_mapi_path,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -14,7 +14,7 @@ pub enum Architecture {
 }
 
 pub enum InstallationState {
-    Installed(Architecture, PathBuf),
+    Installed(Architecture, PathBuf, bool),
     NotInstalled,
 }
 
@@ -44,9 +44,9 @@ fn try_office_installation(category: PCWSTR, qualifier: PCWSTR) -> Option<Instal
     let actual_arch = get_binary_architecture(&exe_path).ok()?;
 
     // Get the corresponding MAPI DLL path
-    let dll_path = unsafe { get_outlook_mapi_path(category, qualifier) }.ok()?;
+    let dll_path = unsafe { get_office_mapi_path_no_install(category, qualifier) }.ok()?;
 
-    Some(InstallationState::Installed(actual_arch, dll_path))
+    Some(InstallationState::Installed(actual_arch, dll_path, false))
 }
 
 pub fn check_outlook_mapi_installation() -> InstallationState {
@@ -59,7 +59,7 @@ pub fn check_outlook_mapi_installation() -> InstallationState {
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for (bitness, qualifier) in OUTLOOK_QUALIFIERS {
             if let Ok(path) = unsafe { get_outlook_mapi_path(category, qualifier) } {
-                return InstallationState::Installed(bitness, path);
+                return InstallationState::Installed(bitness, path, true);
             }
         }
     }

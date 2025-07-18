@@ -42,28 +42,47 @@ pub const OUTLOOK_QUALIFIED_COMPONENTS: [PCWSTR; 6] = [
     O11_CATEGORY_GUID_CORE_OFFICE_DEBUG,
 ];
 
+// Get the path to the MAPI DLL for Outlook, with installation checks
 pub unsafe fn get_outlook_mapi_path(category: PCWSTR, qualifier: PCWSTR) -> Result<PathBuf> {
-    unsafe { get_office_component_path(category, qualifier, Some("olmapi32.dll")) }
+    unsafe {
+        get_office_component_path(
+            category,
+            qualifier,
+            Some("olmapi32.dll"),
+            INSTALLMODE_DEFAULT,
+        )
+    }
 }
 
+// Get the path to the MAPI DLL for Outlook, without installation checks
+pub unsafe fn get_office_mapi_path_no_install(
+    category: PCWSTR,
+    qualifier: PCWSTR,
+) -> Result<PathBuf> {
+    unsafe {
+        get_office_component_path(
+            category,
+            qualifier,
+            Some("olmapi32.dll"),
+            INSTALLMODE_EXISTING,
+        )
+    }
+}
+
+// Get the path to the Office executable (e.g., winword.exe)
 pub unsafe fn get_office_executable_path(category: PCWSTR, qualifier: PCWSTR) -> Result<PathBuf> {
-    unsafe { get_office_component_path(category, qualifier, None) }
+    unsafe { get_office_component_path(category, qualifier, None, INSTALLMODE_EXISTING) }
 }
 
 unsafe fn get_office_component_path(
     category: PCWSTR,
     qualifier: PCWSTR,
     component: Option<&str>,
+    install_mode: INSTALLMODE,
 ) -> Result<PathBuf> {
     let mut size = 0;
     if WIN32_ERROR(unsafe {
-        MsiProvideQualifiedComponentW(
-            category,
-            qualifier,
-            INSTALLMODE_DEFAULT,
-            None,
-            Some(&mut size),
-        )
+        MsiProvideQualifiedComponentW(category, qualifier, install_mode, None, Some(&mut size))
     }) != ERROR_SUCCESS
     {
         return Err(Error::from(E_INVALIDARG));
@@ -75,7 +94,7 @@ unsafe fn get_office_component_path(
         MsiProvideQualifiedComponentW(
             category,
             qualifier,
-            INSTALLMODE_DEFAULT,
+            install_mode,
             Some(PWSTR::from_raw(buffer.as_mut_ptr())),
             Some(&mut size),
         )
@@ -129,10 +148,10 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
             }
         }
 
-        // Try fallback Office app qualifiers
+        // Try fallback Office app qualifiers (without installation)
         for category in OUTLOOK_QUALIFIED_COMPONENTS {
             for qualifier in OFFICE_QUALIFIERS {
-                if let Ok(path) = get_outlook_mapi_path(category, qualifier) {
+                if let Ok(path) = get_office_mapi_path_no_install(category, qualifier) {
                     let buffer: Vec<_> = path
                         .to_str()
                         .ok_or_else(|| Error::from(E_INVALIDARG))?
