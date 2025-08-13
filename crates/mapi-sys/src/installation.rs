@@ -13,7 +13,13 @@ pub enum Architecture {
     X86,
 }
 
+/// Represents the state of MAPI installation detection
+///
+/// The third boolean parameter in `Installed` indicates whether this is an
+/// official Outlook installation (true) or a fallback Office installation (false).
+/// Fallback installations are experimental and not officially supported.
 pub enum InstallationState {
+    /// MAPI installation found: (Architecture, DLL Path, Is Outlook Installation)
     Installed(Architecture, PathBuf, bool),
     NotInstalled,
 }
@@ -37,6 +43,10 @@ fn get_binary_architecture(
 }
 
 fn try_office_installation(category: PCWSTR, qualifier: PCWSTR) -> Option<InstallationState> {
+    // EXPERIMENTAL: Try to find MAPI through non-Outlook Office applications
+    // This is not officially supported and may not work reliably across all configurations.
+    // We are working on a better long-term approach for comprehensive MAPI detection.
+
     // Try to get the executable path for architecture detection
     let exe_path = unsafe { get_office_executable_path(category, qualifier) }.ok()?;
 
@@ -55,7 +65,7 @@ pub fn check_outlook_mapi_installation() -> InstallationState {
         (Architecture::X86, w!("outlook.exe")),
     ];
 
-    // First, try the standard Outlook qualified components
+    // First, try the standard Outlook qualified components (officially supported)
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for (bitness, qualifier) in OUTLOOK_QUALIFIERS {
             if let Ok(path) = unsafe { get_outlook_mapi_path(category, qualifier) } {
@@ -64,7 +74,14 @@ pub fn check_outlook_mapi_installation() -> InstallationState {
         }
     }
 
-    // If not found, try the fallback Office qualifiers
+    // EXPERIMENTAL FALLBACK: If Outlook is not found, try other Office applications
+    //
+    // WARNING: This fallback method is NOT officially supported by Microsoft.
+    // While technically functional, it relies on Office applications sharing MAPI
+    // infrastructure, which may not be guaranteed in future versions.
+    //
+    // We are actively working on a more robust long-term solution for comprehensive
+    // MAPI detection that will replace this experimental approach.
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for qualifier in OFFICE_QUALIFIERS {
             if let Some(installation) = try_office_installation(category, qualifier) {

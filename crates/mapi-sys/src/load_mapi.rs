@@ -1,6 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+//! MAPI Library Loading and Office Detection
+//!
+//! This module provides functionality to detect and load MAPI (Messaging Application
+//! Programming Interface) libraries from Microsoft Office installations.
+//!
+//! # Official Support
+//!
+//! Microsoft officially supports MAPI through proper Office installations that include
+//! MAPI components. Modern Office installations can include MAPI without requiring Outlook.
+//!
+//! # Experimental Fallback Support
+//!
+//! This module also includes **experimental** fallback detection for Office
+//! applications that may have MAPI components available. This functionality:
+//!
+//! - Is **NOT officially supported** by Microsoft
+//! - May not work reliably across all Office configurations  
+//! - May break in future Office updates without notice
+//! - Should be considered a temporary workaround
+//!
+//! **This fallback approach is experimental while we develop a more robust long-term solution.**
+
 use std::{iter, path::PathBuf};
 use windows::Win32::{
     Foundation::*,
@@ -10,7 +32,15 @@ use windows_core::*;
 
 const OLMAPI32_MODULE: PCWSTR = w!("olmapi32.dll");
 
-// Office application fallback qualifiers for MAPI detection
+// EXPERIMENTAL: Office application fallback qualifiers for MAPI detection
+//
+// WARNING: This fallback detection method is NOT officially supported by Microsoft.
+// While Office applications may share MAPI infrastructure with Outlook, this behavior
+// is not guaranteed and may change in future Office versions without notice.
+//
+// This experimental approach is provided as a temporary workaround for environments
+// where standard MAPI detection fails but other Office applications are installed.
+// We are actively working on a more robust long-term solution for MAPI detection.
 pub const OFFICE_QUALIFIERS: [PCWSTR; 6] = [
     // Excel
     w!("excel.exe"),
@@ -149,6 +179,11 @@ pub fn ensure_olmapi32() -> Result<HMODULE> {
         }
 
         // Try fallback Office app qualifiers (without installation)
+        //
+        // EXPERIMENTAL FALLBACK: Attempt to locate MAPI through other Office applications.
+        // This is NOT officially supported.
+        // We are working on a more robust long-term solution for comprehensive MAPI detection.
+        // This behavior may break in future Office updates without notice.
         for category in OUTLOOK_QUALIFIED_COMPONENTS {
             for qualifier in OFFICE_QUALIFIERS {
                 if let Ok(path) = get_office_mapi_path_no_install(category, qualifier) {
