@@ -20,7 +20,15 @@ pub enum Architecture {
 /// Fallback installations are experimental and not officially supported.
 pub enum InstallationState {
     /// MAPI installation found: (Architecture, DLL Path, Is Outlook Installation)
-    Installed(Architecture, PathBuf, bool),
+    Installed {
+        /// Platform architecture that is installed.
+        architecture: Architecture,
+        /// Path to `olmapi32.dll`.
+        dll_path: PathBuf,
+        /// Indicates whether this is an official Outlook installation (true) or a fallback Office installation (false).
+        /// Fallback installations are experimental and not officially supported.
+        is_outlook_installed: bool,
+    },
     NotInstalled,
 }
 
@@ -56,7 +64,11 @@ fn try_office_installation(category: PCWSTR, qualifier: PCWSTR) -> Option<Instal
     // Get the corresponding MAPI DLL path
     let dll_path = unsafe { get_office_mapi_path_no_install(category, qualifier) }.ok()?;
 
-    Some(InstallationState::Installed(actual_arch, dll_path, false))
+    Some(InstallationState::Installed {
+        architecture: actual_arch,
+        dll_path,
+        is_outlook_installed: false,
+    })
 }
 
 pub fn check_outlook_mapi_installation() -> InstallationState {
@@ -69,7 +81,11 @@ pub fn check_outlook_mapi_installation() -> InstallationState {
     for category in OUTLOOK_QUALIFIED_COMPONENTS {
         for (bitness, qualifier) in OUTLOOK_QUALIFIERS {
             if let Ok(path) = unsafe { get_outlook_mapi_path(category, qualifier) } {
-                return InstallationState::Installed(bitness, path, true);
+                return InstallationState::Installed {
+                    architecture: bitness,
+                    dll_path: path,
+                    is_outlook_installed: true,
+                };
             }
         }
     }
