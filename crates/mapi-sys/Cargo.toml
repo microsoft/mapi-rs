@@ -22,6 +22,7 @@ targets = [
 default = [ "olmapi32" ]
 olmapi32 = [
     "windows/Win32_System_ApplicationInstallationAndServicing",
+    "windows/Win32_Storage_FileSystem",
 ]
 
 [dependencies]
