@@ -45,8 +45,7 @@ impl Row {
         } else {
             unsafe {
                 let data: &[sys::SPropValue] = slice::from_raw_parts(self.props, self.count);
-                let data = data.iter().map(PropValue::from).collect();
-                data
+                data.iter().map(PropValue::from).collect()
             }
         }
         .into_iter()
