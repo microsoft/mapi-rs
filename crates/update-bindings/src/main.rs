@@ -188,7 +188,7 @@ mod mapi_bindgen {
         winmd_path.push(WINMD_FILE);
         let mut source_path = get_out_dir();
         source_path.push("bindings.rs");
-        bindgen([
+        let _ = bindgen([
             "--in",
             "default",
             "--in",

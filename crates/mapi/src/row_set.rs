@@ -69,8 +69,7 @@ impl IntoIterator for RowSet {
                 let count = rows.cRows as usize;
                 let data: &mut [sys::SRow] =
                     slice::from_raw_parts_mut(rows.aRow.as_mut_ptr(), count);
-                let data = data.iter_mut().map(Row::new).collect();
-                data
+                data.iter_mut().map(Row::new).collect()
             } else {
                 vec![]
             }

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use windows::Win32::Storage::FileSystem::GetBinaryTypeW;
 use windows_core::{PCWSTR, w};
 
@@ -32,9 +32,7 @@ pub enum InstallationState {
     NotInstalled,
 }
 
-fn get_binary_architecture(
-    file_path: &PathBuf,
-) -> Result<Architecture, Box<dyn std::error::Error>> {
+fn get_binary_architecture(file_path: &Path) -> Result<Architecture, Box<dyn std::error::Error>> {
     let path_str = file_path.to_string_lossy();
     let path_wide: Vec<u16> = path_str.encode_utf16().chain(std::iter::once(0)).collect();
     let mut binary_type: u32 = 0;
@@ -45,7 +43,7 @@ fn get_binary_architecture(
         match binary_type {
             0 => Ok(Architecture::X86), // SCS_32BIT_BINARY
             6 => Ok(Architecture::X64), // SCS_64BIT_BINARY
-            _ => Err(format!("Unsupported binary type: {}", binary_type).into()),
+            _ => Err(format!("Unsupported binary type: {binary_type}").into()),
         }
     }
 }
