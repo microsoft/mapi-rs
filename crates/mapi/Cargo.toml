@@ -1,6 +1,6 @@
 [package]
 name = "outlook-mapi"
-version = "0.15.9"
+version = "0.15.10"
 description = "Rust bindings for the Outlook MAPI interface"
 
 authors.workspace = true
@@ -27,8 +27,6 @@ outlook-mapi-sys.workspace = true
 
 windows.workspace = true
 windows-core.workspace = true
-windows-implement.workspace = true
-windows-interface.workspace = true
 
 [dev-dependencies]
 regex.workspace = true

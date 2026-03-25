@@ -39,7 +39,7 @@ impl Row {
     }
 
     /// Iterate over the [`sys::SPropValue`] column values in the [`Row`].
-    pub fn iter(&self) -> impl Iterator<Item = PropValue> {
+    pub fn iter(&self) -> impl Iterator<Item = PropValue<'_>> {
         if self.props.is_null() {
             vec![]
         } else {

@@ -5,11 +5,13 @@
 
 use crate::{PropTag, sys};
 use core::{ffi, ptr, slice};
-use windows::Win32::{
-    Foundation::{E_INVALIDARG, E_POINTER, FILETIME},
-    System::Com::CY,
+use windows::{
+    Win32::{
+        Foundation::{E_INVALIDARG, E_POINTER, FILETIME},
+        System::Com::CY,
+    },
+    core::*,
 };
-use windows_core::*;
 
 /// Wrapper for a [`sys::SPropValue`] structure which allows pattern matching on [`PropValueData`].
 pub struct PropValue<'a> {
@@ -329,7 +331,7 @@ mod tests {
 
     use crate::{PropTag, PropType, sys};
     use core::{iter, mem, ptr};
-    use windows_core::{s, w};
+    use windows::core::{s, w};
 
     #[test]
     fn test_null() {

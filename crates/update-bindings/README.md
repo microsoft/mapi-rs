@@ -17,7 +17,7 @@ To generate bindings for an update to [microsoft/MAPIStubLibrary](https://github
 include(FetchContent)
 FetchContent_Declare(MAPIStubLibrary
   GIT_REPOSITORY "https://github.com/microsoft/MAPIStubLibrary"
-  GIT_TAG "18655afee37164ea62052a8dd451402b91bb7c37"
+  GIT_TAG "67f85afdf90feebfbaab241a38e864f77eb7caa7"
   GIT_PROGRESS TRUE)
 FetchContent_GetProperties(MAPIStubLibrary)
 ```

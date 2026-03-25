@@ -1,6 +1,8 @@
 use std::path::{Path, PathBuf};
-use windows::Win32::Storage::FileSystem::GetBinaryTypeW;
-use windows_core::{PCWSTR, w};
+use windows::{
+    Win32::Storage::FileSystem::GetBinaryTypeW,
+    core::{PCWSTR, w},
+};
 
 use crate::load_mapi::{
     OFFICE_QUALIFIERS, OUTLOOK_QUALIFIED_COMPONENTS, get_office_executable_path,
