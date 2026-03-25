@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.10](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.9...outlook-mapi-v0.15.10) - 2026-03-25
+
+### Other
+
+- *(deps)* update windows crates and MAPIStubLibrary
+
 ## [0.15.9](https://github.com/microsoft/mapi-rs/compare/outlook-mapi-v0.15.8...outlook-mapi-v0.15.9) - 2025-08-19
 
 ### Other
