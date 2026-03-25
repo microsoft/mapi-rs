@@ -14,8 +14,10 @@ use core::{
     mem::{self, MaybeUninit},
     ptr, slice,
 };
-use windows::Win32::Foundation::E_OUTOFMEMORY;
-use windows_core::{Error, HRESULT};
+use windows::{
+    Win32::Foundation::E_OUTOFMEMORY,
+    core::{Error, HRESULT},
+};
 
 /// Errors which can be returned from this module.
 #[derive(Debug)]

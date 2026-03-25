@@ -12,7 +12,7 @@ mod load_mapi;
 
 fn get_mapi_module() -> HMODULE {
     use std::sync::OnceLock;
-    use windows_core::*;
+    use windows::core::*;
 
     static MAPI_MODULE: OnceLock<usize> = OnceLock::new();
     HMODULE(*MAPI_MODULE.get_or_init(|| unsafe {
@@ -48,7 +48,7 @@ pub mod Microsoft {
         pub mod Outlook {
             pub mod MAPI {
                 pub mod Win32 {
-                    mod windows_link {
+                    mod windows_core {
                         macro_rules! link_mapi {
                             ($library:literal $abi:literal fn $($function:tt)*) => (
                                 #[delay_load(name = $library)]
@@ -58,6 +58,7 @@ pub mod Microsoft {
                             )
                         }
 
+                        pub(crate) use ::windows_core::*;
                         pub(crate) use link_mapi as link;
                     }
 

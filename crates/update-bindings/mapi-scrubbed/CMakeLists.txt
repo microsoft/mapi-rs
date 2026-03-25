@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 include(FetchContent)
 FetchContent_Declare(MAPIStubLibrary
   GIT_REPOSITORY "https://github.com/microsoft/MAPIStubLibrary"
-  GIT_TAG "1d30c31ebf05ef444371520cd4268d6e1fda8a3b"
+  GIT_TAG "67f85afdf90feebfbaab241a38e864f77eb7caa7"
   GIT_PROGRESS TRUE)
 FetchContent_GetProperties(MAPIStubLibrary)
 

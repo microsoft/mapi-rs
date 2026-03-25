@@ -5,8 +5,7 @@
 
 use crate::{Initialize, sys};
 use std::{iter, ptr, sync::Arc};
-use windows::Win32::Foundation::*;
-use windows_core::*;
+use windows::{Win32::Foundation::*, core::*};
 
 /// Set of flags that can be passed to [`sys::MAPILogonEx`].
 #[derive(Default)]

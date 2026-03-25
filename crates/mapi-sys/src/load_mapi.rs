@@ -24,11 +24,13 @@
 //! **This fallback approach is experimental while we develop a more robust long-term solution.**
 
 use std::{iter, path::PathBuf};
-use windows::Win32::{
-    Foundation::*,
-    System::{ApplicationInstallationAndServicing::*, LibraryLoader::*},
+use windows::{
+    Win32::{
+        Foundation::*,
+        System::{ApplicationInstallationAndServicing::*, LibraryLoader::*},
+    },
+    core::*,
 };
-use windows_core::*;
 
 const OLMAPI32_MODULE: PCWSTR = w!("olmapi32.dll");
 
